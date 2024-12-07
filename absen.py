@@ -8,8 +8,9 @@ from datetime import timedelta
 import colorama
 from colorama import Fore, Back, Style
 import time
-import requests
 import sys
+from git import Repo
+import json
 
 # Inisialisasi colorama
 colorama.init(autoreset=True)
@@ -17,32 +18,49 @@ colorama.init(autoreset=True)
 # Atur bahasa lokal ke bahasa Indonesia
 locale.setlocale(locale.LC_TIME, 'en_US.UTF-8')
 
-# URL untuk masuk dan dasbor
-LOGIN_URL = "https://elearning.bsi.ac.id/login"
-DASHBOARD_URL = "https://elearning.bsi.ac.id/user/dashboard"
-SCHEDULE_URL = "https://elearning.bsi.ac.id/sch"
-
+memory_data = load_memory()
 # Kredensial pengguna
-username = "19215324"  # Ganti dengan NIP/NIM Anda
-password = "Polrescikarang!1"  # Ganti dengan kata sandi Anda
+username = memory_data.get("username")
+password = memory_data.get("password")
+
+# URL untuk masuk dan dasbor
+LOGIN_URL = memory_data.get("LOGIN_URL")
+DASHBOARD_URL = memory_data.get("DASHBOARD_URL")
+SCHEDULE_URL = memory_data.get("SCHEDULE_URL")
+
+def load_memory():
+    # Path ke file memory.json
+    memory_file = os.path.join(os.path.dirname(os.path.abspath(__file__)), "memory.json")
+    try:
+        with open(memory_file, "r") as f:
+            data = json.load(f)
+            return data
+    except FileNotFoundError:
+        print("File memory.json tidak ditemukan. Pastikan file tersebut ada di folder yang sama dengan script.")
+        sys.exit(1)
+    except json.JSONDecodeError:
+        print("File memory.json tidak valid. Periksa format JSON.")
+        sys.exit(1)
 
 def update_program():
-    # URL file dari Google Drive
-    file_url = "https://drive.google.com/uc?id=1sQ6-4-m2QdRiAsaAj7LqJM-2fVXKQjBq&export=download"
-    local_file = "absen.py"  # Nama file lokal yang akan diperbarui
+    # URL GitHub repository
+    repo_url = "https://github.com/proton-maker/absen-python.git"
+    local_dir = os.path.dirname(os.path.abspath(__file__))  # Direktori tempat program berjalan
 
     try:
-        print("Mengunduh versi terbaru program...")
-        response = requests.get(file_url, stream=True)
-        response.raise_for_status()  # Periksa apakah ada kesalahan HTTP
+        if os.path.exists(os.path.join(local_dir, ".git")):
+            print("Memperbarui program dari GitHub (Public Repository)...")
+            repo = Repo(local_dir)
+            origin = repo.remotes.origin
+            origin.pull()
+            print("Program berhasil diperbarui. Jalankan ulang script.")
+        else:
+            print("Mengunduh program dari GitHub (Public Repository) untuk pertama kali...")
+            Repo.clone_from(repo_url, local_dir)
+            print("Program berhasil diunduh. Jalankan ulang script.")
 
-        with open(local_file, "wb") as f:
-            for chunk in response.iter_content(chunk_size=8192):
-                f.write(chunk)
-
-        print("Program berhasil diperbarui. Jalankan ulang script.")
         sys.exit(0)  # Keluar setelah update
-    except requests.RequestException as e:
+    except Exception as e:
         print(f"Gagal memperbarui program: {e}")
         sys.exit(1)
 

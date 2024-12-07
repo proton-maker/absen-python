@@ -11,6 +11,7 @@ import time
 import sys
 from git import Repo
 import json
+import subprocess
 
 # Inisialisasi colorama
 colorama.init(autoreset=True)
@@ -49,18 +50,22 @@ def update_program():
 
     try:
         if os.path.exists(os.path.join(local_dir, ".git")):
-            print("Memperbarui program dari GitHub (Public Repository)...")
-            repo = Repo(local_dir)
-            origin = repo.remotes.origin
-            origin.pull()
+            print("Memperbarui program dari GitHub...")
+            # Jalankan perintah git pull
+            subprocess.run(["git", "-C", local_dir, "pull"], check=True)
             print("Program berhasil diperbarui. Jalankan ulang script.")
         else:
-            print("Mengunduh program dari GitHub (Public Repository) untuk pertama kali...")
-            Repo.clone_from(repo_url, local_dir)
+            print("Mengunduh program dari GitHub untuk pertama kali...")
+            # Hapus folder lama jika perlu
+            if os.path.exists(local_dir):
+                subprocess.run(["rm", "-rf", local_dir], check=True)
+            
+            # Jalankan perintah git clone
+            subprocess.run(["git", "clone", repo_url, local_dir], check=True)
             print("Program berhasil diunduh. Jalankan ulang script.")
 
-        sys.exit(0)  # Keluar setelah update
-    except Exception as e:
+        sys.exit(0)
+    except subprocess.CalledProcessError as e:
         print(f"Gagal memperbarui program: {e}")
         sys.exit(1)
 

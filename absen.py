@@ -45,21 +45,20 @@ SCHEDULE_URL = memory_data.get("SCHEDULE_URL")
 def update_program():
     # URL GitHub repository
     repo_url = "https://github.com/proton-maker/absen-python.git"
-    local_dir = os.path.dirname(os.path.abspath(__file__))  # Direktori tempat program berjalan
+    local_dir = os.path.abspath(os.path.dirname(__file__))  # Pastikan path absolut
 
     try:
         if os.path.exists(os.path.join(local_dir, ".git")):
             print("Memperbarui program dari GitHub...")
-            # Jalankan perintah git pull
             subprocess.run(["git", "-C", local_dir, "pull"], check=True)
             print("Program berhasil diperbarui. Jalankan ulang script.")
         else:
             print("Mengunduh program dari GitHub untuk pertama kali...")
-            # Hapus folder lama jika perlu
-            if os.path.exists(local_dir):
-                subprocess.run(["rm", "-rf", local_dir], check=True)
-            
-            # Jalankan perintah git clone
+            # Jika direktori tidak ada, buat direktori baru
+            if not os.path.exists(local_dir):
+                os.makedirs(local_dir)
+
+            # Jalankan git clone
             subprocess.run(["git", "clone", repo_url, local_dir], check=True)
             print("Program berhasil diunduh. Jalankan ulang script.")
 

@@ -9,7 +9,6 @@ import colorama
 from colorama import Fore, Back, Style
 import time
 import sys
-from git import Repo
 import json
 import subprocess
 
@@ -18,16 +17,6 @@ colorama.init(autoreset=True)
 
 # Atur bahasa lokal ke bahasa Indonesia
 locale.setlocale(locale.LC_TIME, 'en_US.UTF-8')
-
-memory_data = load_memory()
-# Kredensial pengguna
-username = memory_data.get("username")
-password = memory_data.get("password")
-
-# URL untuk masuk dan dasbor
-LOGIN_URL = memory_data.get("LOGIN_URL")
-DASHBOARD_URL = memory_data.get("DASHBOARD_URL")
-SCHEDULE_URL = memory_data.get("SCHEDULE_URL")
 
 def load_memory():
     # Path ke file memory.json
@@ -42,6 +31,16 @@ def load_memory():
     except json.JSONDecodeError:
         print("File memory.json tidak valid. Periksa format JSON.")
         sys.exit(1)
+
+memory_data = load_memory()
+# Kredensial pengguna
+username = memory_data.get("username")
+password = memory_data.get("password")
+
+# URL untuk masuk dan dasbor
+LOGIN_URL = memory_data.get("LOGIN_URL")
+DASHBOARD_URL = memory_data.get("DASHBOARD_URL")
+SCHEDULE_URL = memory_data.get("SCHEDULE_URL")
 
 def update_program():
     # URL GitHub repository

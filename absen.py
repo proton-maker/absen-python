@@ -10,8 +10,24 @@ from colorama import Fore, Back, Style
 import time
 import sys
 import json
-import subprocess
 import requests 
+
+def display_ascii_art():
+    ascii_art = """
+
+██████╗░░█████╗░░██████╗███╗░░░███╗██╗░░░██╗██████╗░░█████╗░░██████╗██╗░░██╗██╗░░░██╗
+██╔══██╗██╔══██╗██╔════╝████╗░████║██║░░░██║██╔══██╗██╔══██╗██╔════╝██║░██╔╝╚██╗░██╔╝
+██████╦╝██║░░██║╚█████╗░██╔████╔██║██║░░░██║██║░░██║███████║╚█████╗░█████═╝░░╚████╔╝░
+██╔══██╗██║░░██║░╚═══██╗██║╚██╔╝██║██║░░░██║██║░░██║██╔══██║░╚═══██╗██╔═██╗░░░╚██╔╝░░
+██████╦╝╚█████╔╝██████╔╝██║░╚═╝░██║╚██████╔╝██████╔╝██║░░██║██████╔╝██║░╚██╗░░░██║░░░
+╚═════╝░░╚════╝░╚═════╝░╚═╝░░░░░╚═╝░╚═════╝░╚═════╝░╚═╝░░╚═╝╚═════╝░╚═╝░░╚═╝░░░╚═╝░░░
+    """
+    print(Fore.GREEN + ascii_art)
+
+# Tampilkan ASCII di awal program
+display_ascii_art()
+
+os.system('clear')  # Membersihkan layar terminal
 
 # Inisialisasi colorama
 colorama.init(autoreset=True)
@@ -44,8 +60,7 @@ DASHBOARD_URL = memory_data.get("DASHBOARD_URL")
 SCHEDULE_URL = memory_data.get("SCHEDULE_URL")
 
 def update_program():
-    import requests
-    
+
     # URL untuk raw file di GitHub
     raw_url = "https://raw.githubusercontent.com/proton-maker/absen-python/refs/heads/main/absen.py"
     current_file = os.path.abspath(__file__)  # Lokasi file yang sedang berjalan
@@ -373,8 +388,9 @@ async def schedule_attendance_check():
 
 # Menjalankan aplikasi
 if __name__ == "__main__":
+    os.system('clear')  # Membersihkan layar terminal
+    display_ascii_art()  # Menampilkan ASCII art
     if len(sys.argv) > 1 and sys.argv[1] == "-update":
         update_program()
     else:
         asyncio.run(schedule_attendance_check())
-    asyncio.run(schedule_attendance_check())

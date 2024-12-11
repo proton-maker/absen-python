@@ -11,6 +11,7 @@ import time
 import sys
 import json
 import subprocess
+import requests 
 
 # Inisialisasi colorama
 colorama.init(autoreset=True)
@@ -43,31 +44,27 @@ DASHBOARD_URL = memory_data.get("DASHBOARD_URL")
 SCHEDULE_URL = memory_data.get("SCHEDULE_URL")
 
 def update_program():
-    # URL GitHub repository
-    repo_url = "https://github.com/proton-maker/absen-python.git"
-    current_dir = os.getcwd()  # Folder tempat program dijalankan
-
+    import requests
+    
+    # URL untuk raw file di GitHub
+    raw_url = "https://raw.githubusercontent.com/proton-maker/absen-python/refs/heads/main/absen.py"
+    current_file = os.path.abspath(__file__)  # Lokasi file yang sedang berjalan
+    
     try:
-        if os.path.exists(os.path.join(current_dir, ".git")):
-            print("Memperbarui program dari GitHub...")
-            # Jalankan git pull
-            subprocess.run(["git", "-C", current_dir, "pull"], check=True)
-            print("Program berhasil diperbarui. Jalankan ulang script.")
-        else:
-            print("Mengunduh program dari GitHub untuk pertama kali...")
-            # Hapus folder jika tidak valid
-            if os.path.exists(current_dir):
-                print("Folder sudah ada tetapi bukan repository Git. Menghapus folder...")
-                subprocess.run(["rm", "-rf", current_dir], check=True)
-            
-            # Jalankan git clone
-            subprocess.run(["git", "clone", repo_url, current_dir], check=True)
-            print("Program berhasil diunduh. Jalankan ulang script.")
-
+        print("Mengunduh pembaruan dari GitHub...")
+        response = requests.get(raw_url)
+        response.raise_for_status()  # Periksa jika ada error HTTP
+        
+        # Tulis ulang file saat ini dengan konten baru
+        with open(current_file, "w") as f:
+            f.write(response.text)
+        
+        print("Pembaruan berhasil. Jalankan ulang program.")
         sys.exit(0)
-    except subprocess.CalledProcessError as e:
-        print(f"Gagal memperbarui program: {e}")
+    except requests.RequestException as e:
+        print(f"Gagal mengunduh pembaruan: {e}")
         sys.exit(1)
+
 
 # Fungsi untuk memeriksa koneksi internet
 async def check_internet_connection():

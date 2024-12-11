@@ -27,10 +27,10 @@ def load_memory():
             data = json.load(f)
             return data
     except FileNotFoundError:
-        print("File memory.json tidak ditemukan. Pastikan file tersebut ada di folder yang sama dengan script.")
+        print(Fore.GREEN + "File memory.json tidak ditemukan. Pastikan file tersebut ada di folder yang sama dengan script.")
         sys.exit(1)
     except json.JSONDecodeError:
-        print("File memory.json tidak valid. Periksa format JSON.")
+        print(Fore.GREEN + "File memory.json tidak valid. Periksa format JSON.")
         sys.exit(1)
 
 memory_data = load_memory()
@@ -51,7 +51,7 @@ def update_program():
     current_file = os.path.abspath(__file__)  # Lokasi file yang sedang berjalan
     
     try:
-        print("Mengunduh pembaruan dari GitHub...")
+        print(Fore.GREEN + "Mengunduh pembaruan dari GitHub...")
         response = requests.get(raw_url)
         response.raise_for_status()  # Periksa jika ada error HTTP
         
@@ -59,10 +59,10 @@ def update_program():
         with open(current_file, "w") as f:
             f.write(response.text)
         
-        print("Pembaruan berhasil. Jalankan ulang program.")
+        print(Fore.GREEN + "Pembaruan berhasil. Jalankan ulang program.")
         sys.exit(0)
     except requests.RequestException as e:
-        print(f"Gagal mengunduh pembaruan: {e}")
+        print(Fore.GREEN + f"Gagal mengunduh pembaruan: {e}")
         sys.exit(1)
 
 
@@ -72,12 +72,12 @@ async def check_internet_connection():
         async with aiohttp.ClientSession() as session:
             async with session.get("https://www.google.com", ssl=False, timeout=5) as response:
                 if response.status == 200:
-                    print(" Koneksi internet berhasil.")
+                    print(Fore.GREEN + " Koneksi internet berhasil.")
                     return True
     except aiohttp.ClientError as e:
-        print(f" Koneksi internet gagal. Error: {e}")
+        print(Fore.GREEN + f" Koneksi internet gagal. Error: {e}")
     except asyncio.TimeoutError:
-        print(" Timeout saat memeriksa koneksi internet.")
+        print(Fore.GREEN + " Timeout saat memeriksa koneksi internet.")
     return False
 
 # Fungsi untuk menangani reset saat koneksi bermasalah
@@ -87,7 +87,7 @@ async def handle_connection_issues():
         if is_connected:
             return  # Keluar dari loop jika koneksi berhasil
         else:
-            print("Koneksi internet bermasalah. Program akan mencoba lagi dalam 30 detik...")
+            print(Fore.GREEN + "Koneksi internet bermasalah. Program akan mencoba lagi dalam 30 detik...")
             await asyncio.sleep(30)  # Tunggu 30 detik sebelum mencoba lagi
 
 # Fungsi untuk memecahkan captcha
@@ -111,47 +111,47 @@ async def check_if_logged_in(session):
         async with session.get(DASHBOARD_URL, ssl=False) as dashboard_response:
             dashboard_text = await dashboard_response.text()
             if "Dashboard" in dashboard_text:
-                print(" Pengguna sudah login.\n")
+                print(Fore.GREEN + " Pengguna sudah login.\n")
                 return True
             else:
-                print(" Pengguna belum login. \n")
+                print(Fore.GREEN + " Pengguna belum login. \n")
                 return False
     except aiohttp.ClientError as e:
-        print(f" Error saat memeriksa login: {e}\n")
+        print(Fore.GREEN + f" Error saat memeriksa login: {e}\n")
         return False
 
 # Fungsi untuk menambahkan efek pemuatan seperti hacker (dihapus)
 def hacker_animation(text, delay=0.08):
     for char in text:
-        print(char, end="", flush=True)
+        print(Fore.GREEN + char, end="", flush=True)
         time.sleep(delay)
     print()  # Pindah ke baris berikutnya setelah animasi selesai
 
 # Fungsi utama untuk login ke situs
 async def login_to_site(session):
     try:
-        print(" Memulai proses login...\n")
+        print(Fore.GREEN + " Memulai proses login...\n")
         if await check_if_logged_in(session):
-            print(" Sudah login sebelumnya, melanjutkan ke jadwal.")
+            print(Fore.GREEN + " Sudah login sebelumnya, melanjutkan ke jadwal.")
             return await navigate_to_attendance(session)
 
         async with session.get(LOGIN_URL, ssl=False) as response:
             soup = BeautifulSoup(await response.text(), "html.parser")
-            print(" Berhasil mengakses halaman login.\n")
+            print(Fore.GREEN + " Berhasil mengakses halaman login.\n")
 
             if not validate_login_page(soup):
-                print(" Halaman login tidak valid.")
+                print(Fore.GREEN + " Halaman login tidak valid.")
                 return "Validasi halaman login gagal."
 
             token = soup.find("input", {"name": "_token"}).get("value")
             captcha_question = soup.find("p", {"id": "captcha_question"})
             if not captcha_question:
-                print(" Tidak dapat menemukan pertanyaan captcha.")
+                print(Fore.GREEN + " Tidak dapat menemukan pertanyaan captcha.")
                 return "Tidak dapat menemukan pertanyaan captcha."
 
             captcha_answer = solve_captcha(captcha_question.text)
             if captcha_answer is None:
-                print(" Gagal memecahkan captcha.")
+                print(Fore.GREEN + " Gagal memecahkan captcha.")
                 return "Gagal memecahkan captcha."
 
             payload = {
@@ -161,16 +161,16 @@ async def login_to_site(session):
                 "captcha_answer": captcha_answer,
             }
 
-            print(" Payload login siap. Mengirimkan request login...\n")
+            print(Fore.GREEN + " Payload login siap. Mengirimkan request login...\n")
             async with session.post(LOGIN_URL, data=payload, ssl=False) as login_response:
                 if "Dashboard" in await login_response.text():
-                    print(" Login berhasil!\n")
+                    print(Fore.GREEN + " Login berhasil!\n")
                     return await navigate_to_attendance(session)
                 else:
-                    print(" Login gagal. Cek kredensial.")
+                    print(Fore.GREEN + " Login gagal. Cek kredensial.")
                     return "Login gagal. Periksa kredensial Anda."
     except aiohttp.ClientError as e:
-        print(f" Error saat login: {e}")
+        print(Fore.GREEN + f" Error saat login: {e}")
         return f"Error during request: {str(e)}"
 
 # Fungsi untuk menandai kehadiran setelah kelas ditemukan
@@ -185,16 +185,16 @@ async def mark_attendance(session, token, pertemuan, id):
     while True:  # Lakukan pengecekan berkala
         async with session.post(attendance_url, data=data, ssl=False) as response:
             if response.status == 200:
-                print("Absen berhasil dilakukan!\n")
+                print(Fore.GREEN + "Absen berhasil dilakukan!\n")
                 return "Absen berhasil dilakukan. \n"
             elif response.status == 400:  # Status 400 biasanya untuk kondisi belum tersedia
-                print("Absen belum dibuka oleh dosen. Menunggu 5 menit...")
+                print(Fore.GREEN + "Absen belum dibuka oleh dosen. Menunggu 5 menit...")
                 await asyncio.sleep(300)  # Tunggu 5 menit sebelum mencoba lagi
             else:
                 return f"Gagal melakukan absen. Status code: {response.status}"
 # Fungsi untuk memproses kelas dan menentukan jadwal hari ini
 def process_classes(classes, current_time):
-    print(" Mulai memproses kelas.\n")
+    print(Fore.GREEN + " Mulai memproses kelas.\n")
     today_classes = []
     day_mapping = {
         "Jumat": 4,  # Jumat = 4 (0 = Monday, 6 = Sunday)
@@ -208,9 +208,9 @@ def process_classes(classes, current_time):
             day, time_range = time_info.split(" - ")
             start_time_str, end_time_str = time_range.split("-")
 
-            print(f" Data kelas ditemukan: {course_name}, {day}, {time_range}")
+            print(Fore.GREEN + f" Data kelas ditemukan: {course_name}, {day}, {time_range}")
             if day not in day_mapping:
-                print(f" Hari {day} tidak sesuai.")
+                print(Fore.GREEN + f" Hari {day} tidak sesuai.")
                 continue
 
             start_time = datetime.strptime(start_time_str.strip(), "%H:%M")
@@ -224,33 +224,33 @@ def process_classes(classes, current_time):
             if start_time.date() == current_time.date():
                 today_classes.append((course_name, start_time, end_time))
         except Exception as e:
-            print(f" Error processing class: {e}")
+            print(Fore.GREEN + f" Error processing class: {e}")
     return today_classes
 
 # Fungsi untuk menampilkan jadwal hari ini
 def display_today_schedule(today_classes):
     if today_classes:
-        print("Jadwal Kelas Hari Ini:")
+        print(Fore.GREEN + "Jadwal Kelas Hari Ini:")
         for course_name, start_time, end_time in today_classes:
-            print(f"Kelas: {course_name}")
-            print(f"Waktu: {start_time.strftime('%H:%M')} - {end_time.strftime('%H:%M')}")
-            print("-" * 30)
+            print(Fore.GREEN + f"Kelas: {course_name}")
+            print(Fore.GREEN + f"Waktu: {start_time.strftime('%H:%M')} - {end_time.strftime('%H:%M')}")
+            print(Fore.GREEN + "-" * 30)
     else:
-        print("Tidak ada jadwal untuk hari ini.")  # Cetak hanya sekali di sini
+        print(Fore.GREEN + "Tidak ada jadwal untuk hari ini.")  # Cetak hanya sekali di sini
 
 # Fungsi untuk memantau kelas dan langsung absen jika sudah waktunya
 async def monitor_and_attend_classes(session, classes, today_classes):
-    print(" Mulai memantau kelas.\n")
+    print(Fore.GREEN + " Mulai memantau kelas.\n")
     current_time = datetime.now()
     for course_name, start_time, end_time in today_classes:
-        print(f" Memantau kelas: {course_name} {start_time} - {end_time}")
+        print(Fore.GREEN + f" Memantau kelas: {course_name} {start_time} - {end_time}")
         
         if current_time > end_time:
-            print(f"Kelas {course_name} telah berakhir. Tidak ada tindakan lebih lanjut.\n")
+            print(Fore.GREEN + f"Kelas {course_name} telah berakhir. Tidak ada tindakan lebih lanjut.\n")
             continue  # Lanjutkan ke kelas berikutnya
 
         if current_time >= start_time:
-            print(f" Waktunya absen untuk kelas {course_name}. Memulai proses absen...\n")
+            print(Fore.GREEN + f" Waktunya absen untuk kelas {course_name}. Memulai proses absen...\n")
 
             # Proses bergabung ke kelas
             for class_info in classes:
@@ -263,16 +263,16 @@ async def monitor_and_attend_classes(session, classes, today_classes):
                         while True:  # Loop untuk mencoba absen ulang setiap 5 menit
                             response = await join_and_attend_class(session, join_class_url, course_name)
                             if response == "Absen berhasil dilakukan!" or response == "Absen sudah selesai":
-                                print("Absen berhasil atau sudah selesai! Keluar dari loop.")
+                                print(Fore.GREEN + "Absen berhasil atau sudah selesai! Keluar dari loop.")
                                 return  # Keluar setelah berhasil absen atau jika absen sudah selesai
                             elif response == "Absen belum dimulai":
-                                print(f"Tombol absen belum tersedia untuk kelas {course_name}. Menunggu 5 menit untuk mencoba lagi...\n")
+                                print(Fore.GREEN + f"Tombol absen belum tersedia untuk kelas {course_name}. Menunggu 5 menit untuk mencoba lagi...\n")
                                 await asyncio.sleep(300)  # Tunggu 5 menit sebelum mencoba lagi
                             else:
-                                print(f" Tidak ada tindakan untuk absen pada kelas {course_name}.")
+                                print(Fore.GREEN + f" Tidak ada tindakan untuk absen pada kelas {course_name}.")
                                 break  # Hentikan loop jika tidak ada tindakan
         else:
-            print(f"Kelas {course_name} belum dimulai. Menunggu waktu yang sesuai...\n")
+            print(Fore.GREEN + f"Kelas {course_name} belum dimulai. Menunggu waktu yang sesuai...\n")
 
 # Fungsi untuk masuk ke kelas dan melakukan absen
 async def join_and_attend_class(session, join_class_url, course_name):
@@ -284,14 +284,14 @@ async def join_and_attend_class(session, join_class_url, course_name):
             # Cek apakah absen belum dimulai
             not_started_button = join_soup.find("button", class_="btn btn-danger btn-rounded left mt-4")
             if not_started_button and "Belum Mulai" in not_started_button.text:
-                print(f"Absen belum dimulai untuk kelas {course_name}. Menunggu 5 menit...\n")
+                print(Fore.GREEN + f"Absen belum dimulai untuk kelas {course_name}. Menunggu 5 menit...\n")
                 await asyncio.sleep(300)  # Tunggu 5 menit dan ulangi
                 return "Absen belum dimulai"
 
             # Cek apakah absen sudah selesai
             attendance_form = join_soup.find("form", action="/komentar-mhs")
             if attendance_form:
-                print(f"Absen sudah selesai untuk kelas {course_name}.\n")
+                print(Fore.GREEN + f"Absen sudah selesai untuk kelas {course_name}.\n")
                 return "Absen sudah selesai"
 
             # Lakukan proses kehadiran setelah pengecekan form
@@ -306,7 +306,7 @@ async def join_and_attend_class(session, join_class_url, course_name):
 
                 # Tandai kehadiran
                 attendance_result = await mark_attendance(session, token, pertemuan, id)
-                print(attendance_result)
+                print(Fore.GREEN + attendance_result)
                 return attendance_result
 
     # Jika tidak ada kondisi yang terpenuhi, kembalikan nilai default
@@ -315,17 +315,17 @@ async def join_and_attend_class(session, join_class_url, course_name):
 # Fungsi utama untuk menavigasi ke kehadiran
 async def navigate_to_attendance(session):
     try:
-        print("--- Jadwal Hari Ini ---")
+        print(Fore.GREEN + "--- Jadwal Hari Ini ---")
         async with session.get(SCHEDULE_URL, ssl=False) as schedule_response:
             if schedule_response.status != 200:
-                print(f" Gagal mengakses jadwal. Status: {schedule_response.status}")
+                print(Fore.GREEN + f" Gagal mengakses jadwal. Status: {schedule_response.status}")
                 return "Gagal mengakses jadwal."
 
             schedule_text = await schedule_response.text()
             schedule_soup = BeautifulSoup(schedule_text, "html.parser")
 
             classes = schedule_soup.find_all("div", class_="pricing-plan")
-            print(f" {len(classes)} kelas ditemukan.")
+            print(Fore.GREEN + f" {len(classes)} kelas ditemukan.")
             current_time = datetime.now()
 
             today_classes = process_classes(classes, current_time)
@@ -337,7 +337,7 @@ async def navigate_to_attendance(session):
             else:
                 return "Tidak ada jadwal untuk hari ini."
     except aiohttp.ClientError as e:
-        print(f" Error accessing attendance: {e}")
+        print(Fore.GREEN + f" Error accessing attendance: {e}")
         return f"Error accessing attendance: {str(e)}"
 
 # Fungsi untuk menjadwalkan pemeriksaan kehadiran setiap 5 menit jika kelas sudah dekat
@@ -346,13 +346,13 @@ async def schedule_attendance_check():
         last_status = None  # Menyimpan status terakhir untuk menghindari duplikasi output
 
         while True:
-            print(" Memulai pengecekan jadwal. ")
+            print(Fore.GREEN + " Memulai pengecekan jadwal. ")
             ongoing_classes = await login_to_site(session)  # Pastikan login dilakukan di sini
 
             # Tangani jika ongoing_classes adalah string (status atau error)
             if isinstance(ongoing_classes, str):
                 if ongoing_classes != last_status:
-                    print(f" Status: {ongoing_classes}")
+                    print(Fore.GREEN + f" Status: {ongoing_classes}")
                     last_status = ongoing_classes
                 await asyncio.sleep(300)  # Tunggu 5 menit sebelum pengecekan berikutnya
                 continue
@@ -365,10 +365,10 @@ async def schedule_attendance_check():
             ]
 
             if soon_classes:
-                print(f" Berikut kelas yang akan dimulai dalam 30 menit: {', '.join(soon_classes)}")
+                print(Fore.GREEN + f" Berikut kelas yang akan dimulai dalam 30 menit: {', '.join(soon_classes)}")
                 await asyncio.sleep(1800)  # Tunggu 30 menit untuk pengecekan berikutnya
             else:
-                print(" Tidak ada kelas yang akan dimulai dalam 30 menit. Menunggu 5 menit.")
+                print(Fore.GREEN + " Tidak ada kelas yang akan dimulai dalam 30 menit. Menunggu 5 menit.")
                 await asyncio.sleep(300)  # Tunggu 5 menit sebelum pengecekan berikutnya
 
 # Menjalankan aplikasi

@@ -45,23 +45,23 @@ SCHEDULE_URL = memory_data.get("SCHEDULE_URL")
 def update_program():
     # URL GitHub repository
     repo_url = "https://github.com/proton-maker/absen-python.git"
-    local_dir = os.path.abspath("/data/data/com.termux/files/home/absen")  # Path target
+    current_dir = os.getcwd()  # Folder tempat program dijalankan
 
     try:
-        if os.path.exists(os.path.join(local_dir, ".git")):
+        if os.path.exists(os.path.join(current_dir, ".git")):
             print("Memperbarui program dari GitHub...")
             # Jalankan git pull
-            subprocess.run(["git", "-C", local_dir, "pull"], check=True)
+            subprocess.run(["git", "-C", current_dir, "pull"], check=True)
             print("Program berhasil diperbarui. Jalankan ulang script.")
         else:
             print("Mengunduh program dari GitHub untuk pertama kali...")
             # Hapus folder jika tidak valid
-            if os.path.exists(local_dir):
+            if os.path.exists(current_dir):
                 print("Folder sudah ada tetapi bukan repository Git. Menghapus folder...")
-                subprocess.run(["rm", "-rf", local_dir], check=True)
+                subprocess.run(["rm", "-rf", current_dir], check=True)
             
             # Jalankan git clone
-            subprocess.run(["git", "clone", repo_url, local_dir], check=True)
+            subprocess.run(["git", "clone", repo_url, current_dir], check=True)
             print("Program berhasil diunduh. Jalankan ulang script.")
 
         sys.exit(0)
@@ -294,7 +294,7 @@ async def join_and_attend_class(session, join_class_url, course_name):
             # Cek apakah absen sudah selesai
             attendance_form = join_soup.find("form", action="/komentar-mhs")
             if attendance_form:
-                print(f"Absen sudah selesai untuk kelas {course_name}. Pengecekan akan dilakukan setiap 1 jam.\n")
+                print(f"Absen sudah selesai untuk kelas {course_name}.\n")
                 return "Absen sudah selesai"
 
             # Lakukan proses kehadiran setelah pengecekan form
@@ -343,7 +343,7 @@ async def navigate_to_attendance(session):
         print(f" Error accessing attendance: {e}")
         return f"Error accessing attendance: {str(e)}"
 
-# Fungsi untuk menjadwalkan pemeriksaan kehadiran setiap 5 menit jika kelas sudah dekat, jika tidak setiap 1 jam
+# Fungsi untuk menjadwalkan pemeriksaan kehadiran setiap 5 menit jika kelas sudah dekat
 async def schedule_attendance_check():
     async with aiohttp.ClientSession() as session:
         last_status = None  # Menyimpan status terakhir untuk menghindari duplikasi output
@@ -357,8 +357,7 @@ async def schedule_attendance_check():
                 if ongoing_classes != last_status:
                     print(f" Status: {ongoing_classes}")
                     last_status = ongoing_classes
-                print(" Pengecekan berikutnya akan dilakukan dalam 1 jam.")
-                await asyncio.sleep(3600)  # Tunggu 1 jam sebelum pengecekan berikutnya
+                await asyncio.sleep(300)  # Tunggu 5 menit sebelum pengecekan berikutnya
                 continue
 
             # Tangani jika ongoing_classes adalah daftar kelas
@@ -372,8 +371,8 @@ async def schedule_attendance_check():
                 print(f" Berikut kelas yang akan dimulai dalam 30 menit: {', '.join(soon_classes)}")
                 await asyncio.sleep(1800)  # Tunggu 30 menit untuk pengecekan berikutnya
             else:
-                print(" Tidak ada kelas yang akan dimulai dalam 30 menit. Menunggu 1 jam.")
-                await asyncio.sleep(3600)  # Tunggu 1 jam sebelum pengecekan berikutnya
+                print(" Tidak ada kelas yang akan dimulai dalam 30 menit. Menunggu 5 menit.")
+                await asyncio.sleep(300)  # Tunggu 5 menit sebelum pengecekan berikutnya
 
 # Menjalankan aplikasi
 if __name__ == "__main__":

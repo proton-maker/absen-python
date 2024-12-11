@@ -15,12 +15,12 @@ import requests
 def display_ascii_art():
     ascii_art = """
 
-██████╗░░█████╗░░██████╗███╗░░░███╗██╗░░░██╗██████╗░░█████╗░░██████╗██╗░░██╗██╗░░░██╗
-██╔══██╗██╔══██╗██╔════╝████╗░████║██║░░░██║██╔══██╗██╔══██╗██╔════╝██║░██╔╝╚██╗░██╔╝
-██████╦╝██║░░██║╚█████╗░██╔████╔██║██║░░░██║██║░░██║███████║╚█████╗░█████═╝░░╚████╔╝░
-██╔══██╗██║░░██║░╚═══██╗██║╚██╔╝██║██║░░░██║██║░░██║██╔══██║░╚═══██╗██╔═██╗░░░╚██╔╝░░
-██████╦╝╚█████╔╝██████╔╝██║░╚═╝░██║╚██████╔╝██████╔╝██║░░██║██████╔╝██║░╚██╗░░░██║░░░
-╚═════╝░░╚════╝░╚═════╝░╚═╝░░░░░╚═╝░╚═════╝░╚═════╝░╚═╝░░╚═╝╚═════╝░╚═╝░░╚═╝░░░╚═╝░░░
+██████╗░░█████╗░░██████╗██╗░░██╗██╗
+██╔══██╗██╔══██╗██╔════╝██║░██╔╝██║
+██████╦╝██║░░██║╚█████╗░█████═╝░██║
+██╔══██╗██║░░██║░╚═══██╗██╔═██╗░██║
+██████╦╝╚█████╔╝██████╔╝██║░╚██╗██║
+╚═════╝░░╚════╝░╚═════╝░╚═╝░░╚═╝╚═╝
     """
     print(Fore.GREEN + ascii_art)
 
@@ -223,7 +223,7 @@ def process_classes(classes, current_time):
             day, time_range = time_info.split(" - ")
             start_time_str, end_time_str = time_range.split("-")
 
-            print(Fore.GREEN + f" Data kelas ditemukan: {course_name}, {day}, {time_range}")
+            print(Fore.GREEN + f" Data kelas : {course_name}, {day}, {time_range}")
             if day not in day_mapping:
                 print(Fore.GREEN + f" Hari {day} tidak sesuai.")
                 continue
@@ -251,7 +251,7 @@ def display_today_schedule(today_classes):
             print(Fore.GREEN + f"Waktu: {start_time.strftime('%H:%M')} - {end_time.strftime('%H:%M')}")
             print(Fore.GREEN + "-" * 30)
     else:
-        print(Fore.GREEN + "Tidak ada jadwal untuk hari ini.")  # Cetak hanya sekali di sini
+        print(Fore.GREEN + "Tidak ada jadwal untuk hari ini. \n")  # Cetak hanya sekali di sini
 
 # Fungsi untuk memantau kelas dan langsung absen jika sudah waktunya
 async def monitor_and_attend_classes(session, classes, today_classes):
@@ -340,7 +340,7 @@ async def navigate_to_attendance(session):
             schedule_soup = BeautifulSoup(schedule_text, "html.parser")
 
             classes = schedule_soup.find_all("div", class_="pricing-plan")
-            print(Fore.GREEN + f" {len(classes)} kelas ditemukan.")
+            print(Fore.GREEN + f" {len(classes)} kelas ditemukan.\n")
             current_time = datetime.now()
 
             today_classes = process_classes(classes, current_time)
@@ -350,7 +350,7 @@ async def navigate_to_attendance(session):
                 await monitor_and_attend_classes(session, classes, today_classes)
                 return "Absen selesai untuk kelas hari ini."
             else:
-                return "Tidak ada jadwal untuk hari ini."
+                return "Tidak ada jadwal untuk hari ini. \n"
     except aiohttp.ClientError as e:
         print(Fore.GREEN + f" Error accessing attendance: {e}")
         return f"Error accessing attendance: {str(e)}"
@@ -361,7 +361,7 @@ async def schedule_attendance_check():
         last_status = None  # Menyimpan status terakhir untuk menghindari duplikasi output
 
         while True:
-            print(Fore.GREEN + " Memulai pengecekan jadwal. ")
+            print(Fore.GREEN + " Memulai pengecekan jadwal. \n")
             ongoing_classes = await login_to_site(session)  # Pastikan login dilakukan di sini
 
             # Tangani jika ongoing_classes adalah string (status atau error)

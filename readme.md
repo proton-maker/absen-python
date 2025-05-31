@@ -1,6 +1,6 @@
 # Absensi Otomatis BSI
 
-Skrip Python ini dirancang untuk mengotomatiskan proses absensi di situs web elearning.bsi.ac.id. Skrip ini melakukan login ke situs, memantau jadwal kelas, dan secara otomatis melakukan absensi ketika kelas dimulai.
+Skrip Python ini dirancang untuk mengotomatiskan proses absensi di situs web elearning.bsi.ac.id. Skrip ini melakukan login ke situs, memantau jadwal kelas, dan secara otomatis melakukan absensi ketika kelas dimulai. **Skrip ini masih bisa dikembangkan untuk menambahkan fitur-fitur lain.**
 
 ## Fitur
 
